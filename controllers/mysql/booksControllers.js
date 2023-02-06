@@ -1,8 +1,8 @@
-const asyncHandler = require('express-async-handler')
-var bcrypt = require("bcryptjs");
-var jwt = require("jsonwebtoken");
-const Category = require('../models/category')
-const Books = require('../models/books')
+const db = require("../../models/mysql/index")
+// const Books = require('../../models/books')
+const Books = db.books
+const Category = db.category;
+const Op = db.Sequelize.Op;
 
 const addcategory = async(req,res)=>{
         // json body req data destructuring
@@ -11,12 +11,10 @@ const addcategory = async(req,res)=>{
         } = req.body;
         console.log(req.body);
         try{
-            // check if the category already exists
-            const oldcategory = await Category.findOne({ category_name });
+            const oldcategory = await Category.findOne({ where:{ category_name } });
             if (oldcategory) {
                 return res.status(409).send("Category Already Exist. Please add a unique category name");
             }
-            // create a new category 
             const category = await Category.create({
                 category_name,
               });
@@ -29,13 +27,8 @@ const addcategory = async(req,res)=>{
         }
 }
 const getallcategories = async(req,res)=>{
-    Category.find(function (err, cats) {
-        if (err) {
-          console.log(err);
-        } else {
-          res.json(cats);
-        }
-      }).catch((err) => console.log(err));
+    const cat = await Category.findAll()
+    res.json(cat)
 }
 const add_book = async(req,res)=>{
     // json body req data destructuring
@@ -63,17 +56,16 @@ const add_book = async(req,res)=>{
     }
 }
 const getallbooks = async(req,res)=>{
-    const {sorted_by} = req.query
-    if (sorted_by){
-        console.log(sorted_by)
-    }
-    const books = Books.find(function (err, book) {
-        if (err) {
-            res.json(err);
-        } else {
-            res.json(book);
-        }
+    // Books.belongsToMany(Category,{foreignKey: {name:'category'}});
+    // Category.belongsToMany(Books, {foreignKey: {name:'category'}});
+    const books = await Books.findAll({
+        include: [{
+          model: Category, as : "Category",
+          attributes: ['id','category_name']
+        }],
+        attributes: ['id','bookname','author','published']
       })
+    res.json(books)
 }
 const deletebook = async (req, res) => {
     console.log(req.params)
