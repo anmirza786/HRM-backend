@@ -1,5 +1,5 @@
 const express = require("express");
-const { addcategory,getallcategories,add_book,getallbooks,deletebook } = require('../controllers/booksController')
+const { addcategory,getallcategories,add_book,getallbooks,deletebook } = require('../controllers/mysql/booksControllers')
 const auth = require("../middleware/auth");
 
 const router = express.Router();
