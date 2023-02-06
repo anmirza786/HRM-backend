@@ -1,12 +1,13 @@
 require("dotenv").config();
-const path = require("path");
+// const path = require("path");
 const cors = require("cors");
 const express = require("express");
-const mongoose = require("mongoose");
-require("./db_config/database").connect();
+// const mongoose = require("mongoose");
+// require("./db_config/database").connect();
 const authRouters = require('./routes/authRoutes');
 const booksRouters = require('./routes/booksRoutes');
-
+const db = require("./models/mysql");
+db.sequelize.sync();
 const app = express();
 
 app.use(
